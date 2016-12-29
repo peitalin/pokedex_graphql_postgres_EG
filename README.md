@@ -31,11 +31,10 @@ pip3 install sqlalchemy
 
 ## GraphQl-express server to query AWS postgresql database
 
-Start GraphiQL interface:
+Start GraphiQL:
 ```
 yarn install;
-yarn nodemon
-yarn babel:watch
+yarn nodemon;
 ```
 
 Then visit in browser:
