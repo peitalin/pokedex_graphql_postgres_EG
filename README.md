@@ -9,11 +9,11 @@ Steps:
 
 1. Setup PostgresQL databse on AWS RDS.
 
-2. Launch graphql-express server.
+2. Write resolver functions to connect Graphql api with Postgresql database (defined in: `server.js`).
 
-3. Write resolver functions to connect graphql with Postgresql database.
+3. Launch Graphql-express server.
 
-4. Navigate to localhost:4000/graphql and experiment with graphql queries.
+4. Navigate to `localhost:4000/graphql` and experiment with Graphql queries.
 
 
 
