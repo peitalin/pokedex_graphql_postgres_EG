@@ -10,6 +10,8 @@ import pgp from "pg-promise";
 
 const DBHOST = process.env['AWS_RDS_HOST']
 const DBPASSWORD = process.env['AWS_RDS_PASSWORD']
+const SERVER_IP = process.env['AWS_EC2_IP']
+// const SERVER_IP = 'localhost'
 const PORT = 5432
 
 // var pgConn = pgp()('postgres://peitalin@localhost:5432/pokedex')
@@ -125,9 +127,10 @@ app.use('/graphql', graphqlHTTP({
     schema: schema,
 }));
 
+
 app.listen(4000, () => {
     console.log(
-`\n\n=> Running a GraphQL API server at:\nlocalhost:4000/graphql
+`\n\n=> Running a GraphQL API server at:\n${SERVER_IP}:4000/graphql
 \n=> Connected to database at:\n${DBHOST}\n\n`);
 })
 

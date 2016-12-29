@@ -26,6 +26,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var DBHOST = process.env['AWS_RDS_HOST'];
 var DBPASSWORD = process.env['AWS_RDS_PASSWORD'];
+var SERVER_IP = process.env['AWS_EC2_IP'];
+// const SERVER_IP = 'localhost'
 var PORT = 5432;
 
 // var pgConn = pgp()('postgres://peitalin@localhost:5432/pokedex')
@@ -154,7 +156,7 @@ app.use('/graphql', (0, _expressGraphql2.default)({
 }));
 
 app.listen(4000, function () {
-    console.log("\n\n=> Running a GraphQL API server at:\nlocalhost:4000/graphql\n\n=> Connected to database at:\n" + DBHOST + "\n\n");
+    console.log("\n\n=> Running a GraphQL API server at:\n" + SERVER_IP + ":4000/graphql\n\n=> Connected to database at:\n" + DBHOST + "\n\n");
 });
 
 /*
