@@ -6,10 +6,10 @@
 This template sets up a minimal graphql-express server with a Postgresql database on AWS.
 
 Steps:
-1) Setup PostgresQL databse on AWS RDS.
-2) Launch graphql-express server.
-3) Write resolver functions to connect graphql with Postgresql database.
-4) Navigate to localhost:4000/graphql and experiment with graphql queries.
+1. Setup PostgresQL databse on AWS RDS.
+2. Launch graphql-express server.
+3. Write resolver functions to connect graphql with Postgresql database.
+4. Navigate to localhost:4000/graphql and experiment with graphql queries.
 
 
 
