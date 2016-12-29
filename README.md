@@ -42,7 +42,8 @@ Then visit in browser:
 
 
 Try an example query:
-```{
+```
+{
   getPokemon(name: "Dragonair") {
     id
     name
@@ -54,7 +55,8 @@ Try an example query:
     nextEvolution
     prevEvolution
   }
-}```
+}
+```
 
 
 
