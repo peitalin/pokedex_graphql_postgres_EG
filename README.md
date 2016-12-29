@@ -24,26 +24,26 @@ Then use this script to get pokedex data into postgres database:
 `pokedex_postgres_data/postgres_odo_example.py`
 
 Requires:
-`
+```
 pip3 install pandas
 pip3 install sqlalchemy
-`
+```
 
 ## GraphQl-express server to query AWS postgresql database
 
 Start GraphiQL interface:
-`
+```
 yarn install;
 yarn nodemon
 yarn babel:watch
-`
+```
 
 Then visit in browser:
 `localhost:/graphql:4000`
 
 
 Try an example query:
-`{
+```{
   getPokemon(name: "Dragonair") {
     id
     name
@@ -55,7 +55,7 @@ Try an example query:
     nextEvolution
     prevEvolution
   }
-}`
+}```
 
 
 
