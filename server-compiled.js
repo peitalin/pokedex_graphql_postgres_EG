@@ -20,14 +20,19 @@ var _pgPromise = require("pg-promise");
 
 var _pgPromise2 = _interopRequireDefault(_pgPromise);
 
+var _axios = require("axios");
+
+var _axios2 = _interopRequireDefault(_axios);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DBHOST = process.env['AWS_RDS_HOST'];
 var DBPASSWORD = process.env['AWS_RDS_PASSWORD'];
-var SERVER_IP = process.env['AWS_EC2_IP'];
-// const SERVER_IP = 'localhost'
+// const SERVER_IP = process.env['AWS_EC2_IP']
+// http://13.54.64.52:4000/graphql
+var SERVER_IP = 'localhost';
 var PORT = 5432;
 
 // var pgConn = pgp()('postgres://peitalin@localhost:5432/pokedex')
@@ -46,9 +51,8 @@ var pgConn = (0, _pgPromise2.default)()({
     user: 'peitalin',
     password: DBPASSWORD
 });
-console.log('\n');
-console.log(pgConn);
-console.log('\n');
+// console.log(pgConn);
+
 
 // construct schema using GraphQL schema language
 var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [String]\n        prevEvolution: [String]\n    }\n\n    type Query {\n        names: [String]\n        rollDice(numDice: Int!, numSides: Int): [Int]\n        getPokemon(name: String!): Pokemon\n    }\n\n    ");
@@ -128,7 +132,7 @@ var Pokemon = function () {
 // The root provides a resolve function for each API endpoint
 
 
-var rootResolver = {
+var rootResolvers = {
     names: function names() {
         return ["Dolores", "Clementine", "Maeve"];
     },
@@ -148,41 +152,31 @@ var rootResolver = {
 };
 
 var app = (0, _express2.default)();
+// use: respond to any path starting with '/graphql' regardless of http verbs: GET, POST, PUT
 app.use('/graphql', (0, _expressGraphql2.default)({
     graphiql: true,
     pretty: true,
-    rootValue: rootResolver,
+    rootValue: rootResolvers,
     schema: schema
 }));
 
-app.listen(4000, function () {
-    console.log("\n\n=> Running a GraphQL API server at:\n" + SERVER_IP + ":4000/graphql\n\n=> Connected to database at:\n" + DBHOST + "\n\n");
-});
-
-/*
-
-var xhr = new XMLHttpRequest();
-xhr.responseType = 'json';
-xhr.open("POST", "/graphql");
-xhr.setRequestHeader("Content-Type", "application/json");
-xhr.setRequestHeader("Accept", "application/json");
-xhr.onload = function () {
-  console.log('data returned:', xhr.response);
-}
-var query =`{
-  names
-  getPokemon(name: "Bellsprout") {
-    id
-    name
-    img
-    height
-    weight
-    elementalType
-    elementalWeaknesses
-  }
-}`
-xhr.send(JSON.stringify({
-  query: query,
+//
+app.post('/', (0, _expressGraphql2.default)({
+    schema: schema,
+    pretty: true,
+    rootValue: rootResolvers
 }));
 
-*/
+app.get('/', function (req, res) {
+    var query = "\n\t{\n\t\tgetPokemon(name: \"Dragonair\") {\n\t\t\tid\n\t\t\tname\n\t\t\timg\n\t\t\theight\n\t\t\tweight\n\t\t\telementalType\n\t\t\telementalWeaknesses\n\t\t\tnextEvolution\n\t\t\tprevEvolution\n\t\t}\n\t}\n\t";
+    (0, _graphql.graphql)(schema, query, rootResolvers).then(function (result) {
+        var jresult = JSON.stringify(result, null, 4);
+        console.log(jresult);
+        res.send(jresult);
+    });
+});
+
+app.listen(4000, function () {
+    console.log("\n=> Running a GraphQL API server at:\n" + SERVER_IP + ":4000/graphql");
+    console.log("\n=> Connected to database at:\n" + DBHOST + "\n\n");
+});

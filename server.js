@@ -3,15 +3,17 @@
 
 import express from "express";
 import graphqlHTTP from "express-graphql";
-import { buildSchema } from "graphql";
+import { graphql, buildSchema } from "graphql";
 import _ from "lodash";
 import pgp from "pg-promise";
+import axios from 'axios';
 
 
 const DBHOST = process.env['AWS_RDS_HOST']
 const DBPASSWORD = process.env['AWS_RDS_PASSWORD']
-const SERVER_IP = process.env['AWS_EC2_IP']
-// const SERVER_IP = 'localhost'
+// const SERVER_IP = process.env['AWS_EC2_IP']
+// http://13.54.64.52:4000/graphql
+const SERVER_IP = 'localhost'
 const PORT = 5432
 
 // var pgConn = pgp()('postgres://peitalin@localhost:5432/pokedex')
@@ -30,9 +32,7 @@ var pgConn = pgp()({
     user: 'peitalin',
     password: DBPASSWORD
 })
-console.log('\n');
-console.log(pgConn);
-console.log('\n');
+// console.log(pgConn);
 
 
 // construct schema using GraphQL schema language
@@ -106,7 +106,7 @@ class Pokemon {
 
 
 // The root provides a resolve function for each API endpoint
-var rootResolver = {
+var rootResolvers = {
     names: () => {
         return ["Dolores", "Clementine", "Maeve"]
     },
@@ -120,45 +120,50 @@ var rootResolver = {
 
 
 var app = express();
+// use: respond to any path starting with '/graphql' regardless of http verbs: GET, POST, PUT
 app.use('/graphql', graphqlHTTP({
     graphiql: true,
     pretty: true,
-    rootValue: rootResolver,
+    rootValue: rootResolvers,
     schema: schema,
 }));
 
+//
+app.post('/', graphqlHTTP({
+	schema: schema,
+	pretty: true,
+	rootValue: rootResolvers
+}))
 
-app.listen(4000, () => {
-    console.log(
-`\n\n=> Running a GraphQL API server at:\n${SERVER_IP}:4000/graphql
-\n=> Connected to database at:\n${DBHOST}\n\n`);
+app.get('/', (req, res) => {
+	var query = `
+	{
+		getPokemon(name: "Dragonair") {
+			id
+			name
+			img
+			height
+			weight
+			elementalType
+			elementalWeaknesses
+			nextEvolution
+			prevEvolution
+		}
+	}
+	`
+	graphql(schema, query, rootResolvers)
+		.then(result => {
+			var jresult = JSON.stringify( result, null, 4 )
+			console.log( jresult );
+			res.send( jresult )
+		})
 })
 
-/*
+app.listen(4000, () => {
+    console.log(`\n=> Running a GraphQL API server at:\n${SERVER_IP}:4000/graphql`)
+	console.log(`\n=> Connected to database at:\n${DBHOST}\n\n`);
+})
 
-var xhr = new XMLHttpRequest();
-xhr.responseType = 'json';
-xhr.open("POST", "/graphql");
-xhr.setRequestHeader("Content-Type", "application/json");
-xhr.setRequestHeader("Accept", "application/json");
-xhr.onload = function () {
-  console.log('data returned:', xhr.response);
-}
-var query =`{
-  names
-  getPokemon(name: "Bellsprout") {
-    id
-    name
-    img
-    height
-    weight
-    elementalType
-    elementalWeaknesses
-  }
-}`
-xhr.send(JSON.stringify({
-  query: query,
-}));
 
-*/
+
 
