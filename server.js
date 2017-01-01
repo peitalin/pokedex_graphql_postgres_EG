@@ -6,20 +6,20 @@ import graphqlHTTP from "express-graphql";
 import { graphql, buildSchema } from "graphql";
 import _ from "lodash";
 import pgp from "pg-promise";
-import axios from 'axios';
+var request = require('request')
 
 
-const DBHOST = process.env['AWS_RDS_HOST']
-const DBPASSWORD = process.env['AWS_RDS_PASSWORD']
+const DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host']
+const DBPASSWORD = process.env['AWS_RDS_PASSWORD'] || process.env['aws_rds_host']
 // const SERVER_IP = process.env['AWS_EC2_IP']
 // http://13.54.64.52:4000/graphql
 const SERVER_IP = 'localhost'
-const PORT = 5432
+const PORT = process.env['PORT'] || 4000
 
 // var pgConn = pgp()('postgres://peitalin@localhost:5432/pokedex')
 // var pgConn = pgp()({
 //     host: 'localhost',
-//     post: 5432,
+//     port: 5432,
 //     database: 'pokedex',
 //     // user: 'peitalin',
 //     // password: 'qwer'
@@ -27,7 +27,7 @@ const PORT = 5432
 
 var pgConn = pgp()({
     host: DBHOST,
-    post: 5432,
+    port: 5432,
     database: 'pokedex',
     user: 'peitalin',
     password: DBPASSWORD
@@ -56,7 +56,6 @@ var schema = buildSchema(
 
     type Query {
         names: [String]
-        rollDice(numDice: Int!, numSides: Int): [Int]
         getPokemon(name: String!): Pokemon
     }
 
@@ -110,9 +109,6 @@ var rootResolvers = {
     names: () => {
         return ["Dolores", "Clementine", "Maeve"]
     },
-    rollDice: ({ numDice, numSides }) => {
-        return _.range(numDice).map(n => 1 + Math.floor(Math.random() * (numSides || 6)))
-    },
     getPokemon: ({ name }) => {
         return new Pokemon(name)
     },
@@ -151,19 +147,52 @@ app.get('/', (req, res) => {
 		}
 	}
 	`
-	graphql(schema, query, rootResolvers)
-		.then(result => {
-			var jresult = JSON.stringify( result, null, 4 )
-			console.log( jresult );
-			res.send( jresult )
-		})
+	res.send("hello graphql")
+	// graphql(schema, query, rootResolvers)
+	// 	.then(result => {
+	// 		var jresult = JSON.stringify( result, null, 4 )
+	// 		console.log( jresult );
+	// 		res.send( jresult )
+	// 	})
 })
 
-app.listen(4000, () => {
-    console.log(`\n=> Running a GraphQL API server at:\n${SERVER_IP}:4000/graphql`)
+app.listen(PORT, () => {
+    console.log(`\n=> Running a GraphQL API server at:\n${SERVER_IP}:${PORT}/graphql`)
 	console.log(`\n=> Connected to database at:\n${DBHOST}\n\n`);
 })
 
 
+
+
+var getPokemonData = (name="Haunter") => {
+	var query = `
+	{
+		getPokemon(name: "${name}") {
+			id
+			name
+			img
+			height
+			weight
+			elementalType
+			elementalWeaknesses
+			nextEvolution
+			prevEvolution
+		}
+	}
+	`
+	var options = {
+		url: "http://localhost:4000",
+		method: "POST",
+		headers: { 'Content-Type': 'application/graphql' },
+		body: query,
+	}
+	return request(options, (err, res, body) => res)
+
+}
+
+/*
+var qres = getPokemonData()
+var qres = JSON.parse(qres.response.body)['data']['getPokemon']
+*/
 
 
