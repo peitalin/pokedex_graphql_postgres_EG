@@ -159,13 +159,11 @@ app.post('/', (0, _expressGraphql2.default)({
 
 app.get('/', function (req, res) {
     var query = "\n\t{\n\t\tgetPokemon(name: \"Dragonair\") {\n\t\t\tid\n\t\t\tname\n\t\t\timg\n\t\t\theight\n\t\t\tweight\n\t\t\telementalType\n\t\t\telementalWeaknesses\n\t\t\tnextEvolution\n\t\t\tprevEvolution\n\t\t}\n\t}\n\t";
-    res.send("hello graphql");
-    // graphql(schema, query, rootResolvers)
-    // 	.then(result => {
-    // 		var jresult = JSON.stringify( result, null, 4 )
-    // 		console.log( jresult );
-    // 		res.send( jresult )
-    // 	})
+    (0, _graphql.graphql)(schema, query, rootResolvers).then(function (result) {
+        var jresult = JSON.stringify(result, null, 4);
+        console.log(jresult);
+        res.send(jresult);
+    });
 });
 
 app.listen(PORT, function () {

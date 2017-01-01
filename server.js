@@ -147,13 +147,12 @@ app.get('/', (req, res) => {
 		}
 	}
 	`
-	res.send("hello graphql")
-	// graphql(schema, query, rootResolvers)
-	// 	.then(result => {
-	// 		var jresult = JSON.stringify( result, null, 4 )
-	// 		console.log( jresult );
-	// 		res.send( jresult )
-	// 	})
+	graphql(schema, query, rootResolvers)
+		.then(result => {
+			var jresult = JSON.stringify( result, null, 4 )
+			console.log( jresult );
+			res.send( jresult )
+		})
 })
 
 app.listen(PORT, () => {
