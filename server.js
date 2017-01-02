@@ -11,9 +11,8 @@ var request = require('request')
 
 const DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host']
 const DBPASSWORD = process.env['AWS_RDS_PASSWORD'] || process.env['aws_rds_host']
-// const SERVER_IP = process.env['AWS_EC2_IP']
+const SERVER_IP = process.env['AWS_EC2_IP'] || 'localhost'
 // http://13.54.64.52:4000/graphql
-const SERVER_IP = 'localhost'
 const PORT = process.env['PORT'] || 4000
 
 // var pgConn = pgp()('postgres://peitalin@localhost:5432/pokedex')
@@ -180,7 +179,7 @@ var getPokemonData = (name="Haunter") => {
 	}
 	`
 	var options = {
-		url: "http://localhost:4000",
+		url: `${SERVER_IP}:${PORT}`,
 		method: "POST",
 		headers: { 'Content-Type': 'application/graphql' },
 		body: query,
