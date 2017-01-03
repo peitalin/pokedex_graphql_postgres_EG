@@ -20,24 +20,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-require('babel-polyfill');
-
 var request = require('request');
-var cors = require('cors');
 
 var DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host'];
 var DBPASSWORD = process.env['AWS_RDS_PASSWORD'] || process.env['aws_rds_host'];
 var SERVER_IP = process.env['AWS_EC2_IP'] || 'localhost';
 var PORT = process.env['PORT'] || 4000;
-
-// var pgConn = pgp()('postgres://peitalin@localhost:5432/pokedex')
-// var pgConn = pgp()({
-//     host: 'localhost',
-//     port: 5432,
-//     database: 'pokedex',
-//     // user: 'peitalin',
-//     // password: 'qwer'
-// })
 
 var pgConn = require('pg-promise')()({
     host: DBHOST,
@@ -46,8 +34,6 @@ var pgConn = require('pg-promise')()({
     user: 'peitalin',
     password: DBPASSWORD
 });
-// console.log(pgConn);
-
 
 // construct schema using GraphQL schema language
 var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [String]\n        prevEvolution: [String]\n    }\n\n    type Query {\n        names: [String]\n        getPokemon(name: String!): Pokemon\n    }\n\n    ");
@@ -96,7 +82,6 @@ var Pokemon = function () {
         value: function nextEvolution() {
             var _this = this;
 
-            // return ['grub', 'worm']
             return pgConn.many("SELECT * FROM next_evolution WHERE next_evolution.name = '" + this.name + "'").then(function (data) {
                 return data.map(function (d) {
                     return d.next_evolution;
@@ -110,7 +95,6 @@ var Pokemon = function () {
         value: function prevEvolution() {
             var _this2 = this;
 
-            // return ['grub', 'worm']
             return pgConn.many("SELECT * FROM prev_evolution WHERE prev_evolution.name = '" + this.name + "'").then(function (data) {
                 return data.map(function (d) {
                     return d.prev_evolution;
@@ -139,13 +123,6 @@ var rootResolvers = {
 };
 
 var app = (0, _express2.default)();
-
-// app.use(function(req, res, next) {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//   next();
-// });
-app.use(cors());
 
 // use: respond to any path starting with '/graphql' regardless of http verbs: GET, POST, PUT
 app.use('/graphql', (0, _expressGraphql2.default)({
@@ -176,48 +153,48 @@ app.listen(PORT, function () {
     console.log("\n=> Connected to database at:\n" + DBHOST + "\n\n");
 });
 
-// var getPokemonData = (name="Haunter") => {
-// 	var quote;
-// 	var query = `
-// 	{
-// 		getPokemon(name: "${name}") {
-// 			id
-// 			name
-// 			img
-// 			height
-// 			weight
-// 			elementalType
-// 			elementalWeaknesses
-// 			nextEvolution
-// 			prevEvolution
-// 		}
-// 	}
-// 	`
-// 	var options = {
-// 		url: `http://${SERVER_IP}`,
-// 		method: "POST",
-// 		headers: { 'Content-Type': 'application/graphql' },
-// 		body: query,
-// 	}
-// 	return new Promise(function(resolve, reject) {
-// 		request(options, (err, res, body) => {
-// 			quote = body;
-// 			resolve(quote)
-// 		})
-// 	})
-// }
-//
-// async function main(name="Haunter") {
-// 	console.log("prints first, before await");
-// 	console.log("awaiting getPokemonData(name) to return..." );
-// 	var quote = await getPokemonData(name);
-// 	console.log("finished awaiting...");
-// 	console.log(quote)
-// 	return JSON.parse(quote)
-// }
-//
-
+// For development environment only
 /*
+var getPokemonData = (name="Haunter") => {
+	var quote;
+	var query = `
+	{
+		getPokemon(name: "${name}") {
+			id
+			name
+			img
+			height
+			weight
+			elementalType
+			elementalWeaknesses
+			nextEvolution
+			prevEvolution
+		}
+	}
+	`
+	var options = {
+		url: `http://${SERVER_IP}`,
+		method: "POST",
+		headers: { 'Content-Type': 'application/graphql' },
+		body: query,
+	}
+	return new Promise(function(resolve, reject) {
+		request(options, (err, res, body) => {
+			quote = body;
+			resolve(quote)
+		})
+	})
+}
+
+async function main(name="Haunter") {
+	console.log("prints first, before await");
+	console.log("awaiting getPokemonData(name) to return..." );
+	var quote = await getPokemonData(name);
+	console.log("finished awaiting...");
+	console.log(quote)
+	return JSON.parse(quote)
+}
+
 var qres = main('Magikarp')
 qres.then(x => console.log(x['data']['getPokemon']))
 */
