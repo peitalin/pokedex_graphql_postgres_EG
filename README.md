@@ -10,11 +10,11 @@ This template sets up a GraphQl Api for pokemon using graphql-express server and
 Start GraphiQL:
 ```
 yarn install; # or npm install
-yarn start; # or npm start
+yarn start;
 ```
 
 Then visit this url in your browser:
-`localhost:/graphql:4000`
+`localhost:4000/graphql`
 
 Now try a Graphql query:
 ```
