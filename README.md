@@ -105,16 +105,19 @@ In order to use this server for other web applications, you'll need to enable CO
 Otherwise you won't be able to use the server as a GraphQL api for other applications.
 
 #### a) Create a new API and add a method (POST) with integration type: HTTP
-![step 1](./api_steps/step1.png)
+![step 1](./api_steps/step1.jpg)
 
 #### b) Make sure you set 'Content-Type' in Http Request Headers
-![step 2](./api_steps/step2.png)
+![step 2](./api_steps/step2.jpg)
 
-#### c) Test a query, set 'Content-Type' header as 'application/graphql'
-![step 3](./api_steps/step3.png)
+#### c) Test a query
+Set 'Content-Type' header as 'application/graphql'
+![step 3](./api_steps/step3.jpg)
 
-#### d) Enable CORS, set 'Access-Control-Allow-Headers' to 'Content-Type', and leave Access-Control-Allow-Origin to '\*'. Then hit 'Deploy API'.
-![step 4](./api_steps/step4.png)
+#### d) Enable CORS
+Set 'Access-Control-Allow-Headers' to 'Content-Type', and leave Access-Control-Allow-Origin to '\*' (or limit to your app domains).
+Then hit 'Deploy API'.
+![step 4](./api_steps/step4.jpg)
 
 You will recieve a new IP address which is now your API endpoint for graphql requests.
 E.g. use this with ApolloGraphQL:
