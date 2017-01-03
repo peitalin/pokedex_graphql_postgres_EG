@@ -86,6 +86,7 @@ source ~/.bashid
 ### 4) Open up ports on both EC2 server, and RDS database.
 a) Make sure you open up inbound ports: 4000 on the EC2 server. Also open http, https ports.
 [Redirect port 4000 to 80](http://stackoverflow.com/questions/16573668/best-practices-when-running-node-js-with-port-80-ubuntu-linode).
+
 b) Open up all inbound ports on the RDS databse server (so that the graphql-express server running on EC2 can make requests to the RDS postgres database).
 
 
@@ -103,13 +104,17 @@ Or run as a service using `forever` package, so that it restarts when the instan
 In order to use this server for other web applications, you'll need to enable CORS on AWS api gateway.
 Otherwise you won't be able to use the server as a GraphQL api for other applications.
 
-a) Create a new API and add a method (POST) with integration type: HTTP ![step 1](./api_steps/step1.png)
+#### a) Create a new API and add a method (POST) with integration type: HTTP
+![step 1](./api_steps/step1.png)
 
-b) Make sure you set 'Content-Type' in Http Request Headers ![step 2](./api_steps/step2.png)
+#### b) Make sure you set 'Content-Type' in Http Request Headers
+![step 2](./api_steps/step2.png)
 
-c) Test a query, set 'Content-Type' header as 'application/graphql' ![step 3](./api_steps/step3.png)
+#### c) Test a query, set 'Content-Type' header as 'application/graphql'
+![step 3](./api_steps/step3.png)
 
-d) Enable CORS, set 'Access-Control-Allow-Headers' to 'Content-Type', and leave Access-Control-Allow-Origin to '\*'. Then hit 'Deploy API'. ![step 4](./api_steps/step4.png)
+#### d) Enable CORS, set 'Access-Control-Allow-Headers' to 'Content-Type', and leave Access-Control-Allow-Origin to '\*'. Then hit 'Deploy API'.
+![step 4](./api_steps/step4.png)
 
 You will recieve a new IP address which is now your API endpoint for graphql requests.
 E.g. use this with ApolloGraphQL:
