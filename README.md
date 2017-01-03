@@ -61,18 +61,17 @@ fragment pokemonStats on Pokemon {
 ## Setting up a Postgresql/GraphQL backend on AWS RDS/EC2
 Steps
 
-### 1) Setup a postgresql database with username "peitalin" and database name "pokedex" on AWS RDS:
+### 1) Setup a postgresql database on AWS RDS:
 [AWS RDS Postgresql Instructions]( http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.PostgreSQL.html ).
 
-You should go through `server.js` and `postgres_odo_example.py` and replace the username, password and database details as needed.
 
 
-### 2) Then run the `postgres_odo_example.py` script to populate postgres database with pokedex data from `pokedex.csv`:
+### 2) Populate postgres database with pokedex data from `pokedex.csv`:
 
+You should first go through `postgres_odo_example.py` and replace the username, password and database details as needed.
 ```
-pip3 install pandas;
-pip3 install sqlalchemy;
-python3pokedex_postgres_data/postgres_odo_example.py
+pip3 install pandas sqlalchemy;
+python3 ./pokedex_postgres_data/postgres_odo_example.py
 ```
 
 ### 3) Boot up an EC2 instances and setup environment variables:
@@ -84,20 +83,42 @@ echo "export AWS_RDS_PASSWORD=rds_password" >> ~/.bashid
 source ~/.bashid
 ```
 
-### 4) Open up ports on both the EC2 server, and the RDS database.
+### 4) Open up ports on both EC2 server, and RDS database.
 a) Make sure you open up inbound ports: 4000 on the EC2 server. Also open http, https ports.
 [Redirect port 4000 to 80](http://stackoverflow.com/questions/16573668/best-practices-when-running-node-js-with-port-80-ubuntu-linode).
 b) Open up all inbound ports on the RDS databse server (so that the graphql-express server running on EC2 can make requests to the RDS postgres database).
 
 
-### 5) Run the graphql-express server. (Or run as a service using `forever` package)
+### 5) Run the GraphQL-Express server.
 ```
 git clone https://github.com/peitalin/pokedex_graphql_postgres_EG
 cd ./pokedex_graphql_postgres_EG
 npm install
 npm start
 ```
+Or run as a service using `forever` package, so that it restarts when the instance reboots.
 
-6. Enable AWS api gateway to allow CORS (cross origin requests)
+
+### 6) Enable AWS api gateway to allow CORS (cross origin requests)
+In order to use this server for other web applications, you'll need to enable CORS on AWS api gateway.
 Otherwise you won't be able to use the server as a GraphQL api for other applications.
+
+a) Create a new API and add a method (POST) with integration type: HTTP ![step 1](./api_steps/step1.png)
+
+b) Make sure you set 'Content-Type' in Http Request Headers ![step 2](./api_steps/step2.png)
+
+c) Test a query, set 'Content-Type' header as 'application/graphql' ![step 3](./api_steps/step3.png)
+
+d) Enable CORS, set 'Access-Control-Allow-Headers' to 'Content-Type', and leave Access-Control-Allow-Origin to '\*'. Then hit 'Deploy API'. ![step 4](./api_steps/step4.png)
+
+You will recieve a new IP address which is now your API endpoint for graphql requests.
+E.g. use this with ApolloGraphQL:
+```
+const client = new ApolloClient({
+	networkInterface: createNetworkInterface({ uri: URL }),
+})
+
+```
+
+
 
