@@ -16,20 +16,18 @@ var _lodash = require("lodash");
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _pgPromise = require("pg-promise");
-
-var _pgPromise2 = _interopRequireDefault(_pgPromise);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+require('babel-polyfill');
+
 var request = require('request');
+var cors = require('cors');
 
 var DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host'];
 var DBPASSWORD = process.env['AWS_RDS_PASSWORD'] || process.env['aws_rds_host'];
 var SERVER_IP = process.env['AWS_EC2_IP'] || 'localhost';
-// http://13.54.64.52:4000/graphql
 var PORT = process.env['PORT'] || 4000;
 
 // var pgConn = pgp()('postgres://peitalin@localhost:5432/pokedex')
@@ -41,7 +39,7 @@ var PORT = process.env['PORT'] || 4000;
 //     // password: 'qwer'
 // })
 
-var pgConn = (0, _pgPromise2.default)()({
+var pgConn = require('pg-promise')()({
     host: DBHOST,
     port: 5432,
     database: 'pokedex',
@@ -141,6 +139,14 @@ var rootResolvers = {
 };
 
 var app = (0, _express2.default)();
+
+// app.use(function(req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//   next();
+// });
+app.use(cors());
+
 // use: respond to any path starting with '/graphql' regardless of http verbs: GET, POST, PUT
 app.use('/graphql', (0, _expressGraphql2.default)({
     graphiql: true,
@@ -157,7 +163,7 @@ app.post('/', (0, _expressGraphql2.default)({
 }));
 
 app.get('/', function (req, res) {
-    var query = "\n\t{\n\t\tgetPokemon(name: \"Dragonair\") {\n\t\t\tid\n\t\t\tname\n\t\t\timg\n\t\t\theight\n\t\t\tweight\n\t\t\telementalType\n\t\t\telementalWeaknesses\n\t\t\tnextEvolution\n\t\t\tprevEvolution\n\t\t}\n\t}\n\t";
+    var query = "\n\t{\n\t\tmetapod: getPokemon(name: \"Metapod\") {\n\t\t...pokemonStats\n\t\t}\n\t\tkakuna: getPokemon(name: \"Kakuna\") {\n\t\t...pokemonStats\n\t\t}\n\t}\n\n\tfragment pokemonStats on Pokemon {\n\t\tid\n\t\tname\n\t\theight\n\t\tweight\n\t\timg\n\t\telementalType\n\t\telementalWeaknesses\n\t\tnextEvolution\n\t\tprevEvolution\n\t}\n\t";
     (0, _graphql.graphql)(schema, query, rootResolvers).then(function (result) {
         var jresult = JSON.stringify(result, null, 4);
         console.log(jresult);
@@ -170,22 +176,48 @@ app.listen(PORT, function () {
     console.log("\n=> Connected to database at:\n" + DBHOST + "\n\n");
 });
 
-var getPokemonData = function getPokemonData() {
-    var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "Haunter";
-
-    var query = "\n\t{\n\t\tgetPokemon(name: \"" + name + "\") {\n\t\t\tid\n\t\t\tname\n\t\t\timg\n\t\t\theight\n\t\t\tweight\n\t\t\telementalType\n\t\t\telementalWeaknesses\n\t\t\tnextEvolution\n\t\t\tprevEvolution\n\t\t}\n\t}\n\t";
-    var options = {
-        url: SERVER_IP + ":" + PORT,
-        method: "POST",
-        headers: { 'Content-Type': 'application/graphql' },
-        body: query
-    };
-    return request(options, function (err, res, body) {
-        return res;
-    });
-};
+// var getPokemonData = (name="Haunter") => {
+// 	var quote;
+// 	var query = `
+// 	{
+// 		getPokemon(name: "${name}") {
+// 			id
+// 			name
+// 			img
+// 			height
+// 			weight
+// 			elementalType
+// 			elementalWeaknesses
+// 			nextEvolution
+// 			prevEvolution
+// 		}
+// 	}
+// 	`
+// 	var options = {
+// 		url: `http://${SERVER_IP}`,
+// 		method: "POST",
+// 		headers: { 'Content-Type': 'application/graphql' },
+// 		body: query,
+// 	}
+// 	return new Promise(function(resolve, reject) {
+// 		request(options, (err, res, body) => {
+// 			quote = body;
+// 			resolve(quote)
+// 		})
+// 	})
+// }
+//
+// async function main(name="Haunter") {
+// 	console.log("prints first, before await");
+// 	console.log("awaiting getPokemonData(name) to return..." );
+// 	var quote = await getPokemonData(name);
+// 	console.log("finished awaiting...");
+// 	console.log(quote)
+// 	return JSON.parse(quote)
+// }
+//
 
 /*
-var qres = getPokemonData()
-var qres = JSON.parse(qres.response.body)['data']['getPokemon']
+var qres = main('Magikarp')
+qres.then(x => console.log(x['data']['getPokemon']))
 */
