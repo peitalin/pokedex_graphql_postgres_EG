@@ -43,7 +43,9 @@ var schema = buildSchema(
 
     type Query {
         names: [String]
-        getPokemon(name: String!): Pokemon
+        getPokemon(name: String): Pokemon
+        getPokemonByType(elementalType: [String]): [Pokemon]
+        getPokemonWithElementalAdvantage(name: String): [Pokemon]
     }
 
     `
@@ -97,6 +99,20 @@ var rootResolvers = {
     getPokemon: ({ name }) => {
         return new Pokemon(name)
     },
+    getPokemonByType: ({ elementalType }) => {
+        return pgConn.many(
+            `SELECT * FROM pokemon_type WHERE pokemon_type.type = '${elementalType}'`
+        ).then(data => data.map(d => new Pokemon(d.name)))
+    },
+    getPokemonWithElementalAdvantage: ({ name }) => {
+        return pgConn.many(`SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '${name}'`)
+                            .then(data => data.map(d => d.weaknesses))
+                            .then(weaknesses => {
+                                var weaknessTypeStr = '(' + weaknesses.map(w => `'${w}'`).join(',') + ')'
+                                return pgConn.many( `SELECT * FROM pokemon_type WHERE pokemon_type.type in ${weaknessTypeStr}` )
+                                .then(data => data.map(d => new Pokemon(d.name)))
+                            })
+    }
 };
 
 
@@ -112,45 +128,51 @@ app.use('/graphql', graphqlHTTP({
 
 //
 app.post('/', graphqlHTTP({
-	schema: schema,
-	pretty: true,
-	rootValue: rootResolvers
+    schema: schema,
+    pretty: true,
+    rootValue: rootResolvers
 }))
 
 app.get('/', (req, res) => {
-	var query = `
-	{
-		metapod: getPokemon(name: "Metapod") {
-		...pokemonStats
-		}
-		kakuna: getPokemon(name: "Kakuna") {
-		...pokemonStats
-		}
-	}
+    var query = `
+    {
+        metapod: getPokemon(name: "Metapod") {
+        ...pokemonStats
+        }
+        kakuna: getPokemon(name: "Kakuna") {
+        ...pokemonStats
+        }
+    }
 
-	fragment pokemonStats on Pokemon {
-		id
-		name
-		height
-		weight
-		img
-		elementalType
-		elementalWeaknesses
-		nextEvolution
-		prevEvolution
-	}
-	`
-	graphql(schema, query, rootResolvers)
-		.then(result => {
-			var jresult = JSON.stringify( result, null, 4 )
-			console.log( jresult );
-			res.send( jresult )
-		})
+    fragment pokemonStats on Pokemon {
+        id
+        name
+        height
+        weight
+        img
+        elementalType
+        elementalWeaknesses
+        nextEvolution
+        prevEvolution
+    }
+    `
+    graphql(schema, query, rootResolvers)
+        .then(result => {
+            var jresult = JSON.stringify( result, null, 4 )
+            console.log( jresult );
+            res.send(`
+                <div>
+                    <h1>GraphlQL Pokemon API</h1>
+                    <h2>Visit localhost:4000/graphql</h2>
+                    <pre> ${ jresult } </pre>
+                </div>
+             `)
+        })
 })
 
 app.listen(PORT, () => {
     console.log(`\n=> Running a GraphQL API server at:\n${SERVER_IP}:${PORT}/graphql`)
-	console.log(`\n=> Connected to database at:\n${DBHOST}\n\n`);
+    console.log(`\n=> Connected to database at:\n${DBHOST}\n\n`);
 })
 
 
@@ -159,43 +181,43 @@ app.listen(PORT, () => {
 // For development environment only
 /*
 var getPokemonData = (name="Haunter") => {
-	var quote;
-	var query = `
-	{
-		getPokemon(name: "${name}") {
-			id
-			name
-			img
-			height
-			weight
-			elementalType
-			elementalWeaknesses
-			nextEvolution
-			prevEvolution
-		}
-	}
-	`
-	var options = {
-		url: `http://${SERVER_IP}`,
-		method: "POST",
-		headers: { 'Content-Type': 'application/graphql' },
-		body: query,
-	}
-	return new Promise(function(resolve, reject) {
-		request(options, (err, res, body) => {
-			quote = body;
-			resolve(quote)
-		})
-	})
+    var quote;
+    var query = `
+    {
+        getPokemon(name: "${name}") {
+            id
+            name
+            img
+            height
+            weight
+            elementalType
+            elementalWeaknesses
+            nextEvolution
+            prevEvolution
+        }
+    }
+    `
+    var options = {
+        url: `http://${SERVER_IP}`,
+        method: "POST",
+        headers: { 'Content-Type': 'application/graphql' },
+        body: query,
+    }
+    return new Promise(function(resolve, reject) {
+        request(options, (err, res, body) => {
+            quote = body;
+            resolve(quote)
+        })
+    })
 }
 
 async function main(name="Haunter") {
-	console.log("prints first, before await");
-	console.log("awaiting getPokemonData(name) to return..." );
-	var quote = await getPokemonData(name);
-	console.log("finished awaiting...");
-	console.log(quote)
-	return JSON.parse(quote)
+    console.log("prints first, before await");
+    console.log("awaiting getPokemonData(name) to return..." );
+    var quote = await getPokemonData(name);
+    console.log("finished awaiting...");
+    console.log(quote)
+    return JSON.parse(quote)
 }
 
 var qres = main('Magikarp')

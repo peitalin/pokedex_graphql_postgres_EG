@@ -129,4 +129,51 @@ const client = new ApolloClient({
 ```
 
 
+## Additional Graphql Query Examples
 
+
+Then visit this url in your browser:
+`localhost:4000/graphql`
+
+And try filtering pokemon by types:
+
+```
+{
+	getPokemonByType(elementalType: "Fire") {
+    ...pokemonStats
+  }
+}
+
+fragment pokemonStats on Pokemon {
+    id
+    name
+    height
+    weight
+    img
+    elementalType
+    elementalWeaknesses
+    nextEvolution
+    prevEvolution
+}
+
+```
+
+Now see all pokemon which have an elemental advantage against a particular pokemon:
+Charmander (fire) vs. Charizard (fire/flying)
+
+```
+{
+	fireWeaknesses: getPokemonWithElementalAdvantage(name: "Charmander") {
+    ...pokemonStats
+  }
+	fireFlyingWeaknesses: getPokemonWithElementalAdvantage(name: "Charizard") {
+    ...pokemonStats
+  }
+}
+
+fragment pokemonStats on Pokemon {
+    name
+    elementalType
+}
+
+```
