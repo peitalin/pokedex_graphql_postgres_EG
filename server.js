@@ -163,8 +163,15 @@ app.get('/', (req, res) => {
             res.send(`
                 <div>
                     <h1>GraphlQL Pokemon API</h1>
-                    <h2>Visit localhost:4000/graphql</h2>
-                    <pre> ${ jresult } </pre>
+                    <h2>Visit: <i>localhost:4000/graphql</i></h2>
+                    <h3> Example query: </h3>
+                    <pre style="color: #3887b5"> ${ query } </pre>
+                    <h3> Graphql Output: </h3>
+                    <pre style="color: #00968f"> ${ jresult } </pre>
+                    <hr>
+                    <h3> More query examples at: </h3>
+                    <a href="https://github.com/peitalin/pokedex_graphql_postgres_EG">pokedex_graphql_postgres_EG</a>
+                    <h1><br></h1>
                 </div>
              `)
         })

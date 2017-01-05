@@ -171,7 +171,7 @@ app.get('/', function (req, res) {
     (0, _graphql.graphql)(schema, query, rootResolvers).then(function (result) {
         var jresult = JSON.stringify(result, null, 4);
         console.log(jresult);
-        res.send("\n                <div>\n                    <h1>GraphlQL Pokemon API</h1>\n                    <h2>Visit localhost:4000/graphql</h2>\n                    <pre> " + jresult + " </pre>\n                </div>\n             ");
+        res.send("\n                <div>\n                    <h1>GraphlQL Pokemon API</h1>\n                    <h2>Visit: <i>localhost:4000/graphql</i></h2>\n                    <h3> Example query: </h3>\n                    <pre style=\"color: #3887b5\"> " + query + " </pre>\n                    <h3> Graphql Output: </h3>\n                    <pre style=\"color: #00968f\"> " + jresult + " </pre>\n                    <hr>\n                    <h3> More query examples at: </h3>\n                    <a href=\"https://github.com/peitalin/pokedex_graphql_postgres_EG\">pokedex_graphql_postgres_EG</a>\n                    <h1><br></h1>\n                </div>\n             ");
     });
 });
 
