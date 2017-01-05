@@ -24,7 +24,7 @@ var request = require('request');
 
 var DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host'];
 var DBPASSWORD = process.env['AWS_RDS_PASSWORD'] || process.env['aws_rds_host'];
-var SERVER_IP = process.env['AWS_EC2_IP'] || 'localhost';
+var SERVER_IP = 'localhost';
 var PORT = process.env['PORT'] || 4000;
 
 var pgConn = require('pg-promise')()({
@@ -36,7 +36,7 @@ var pgConn = require('pg-promise')()({
 });
 
 // construct schema using GraphQL schema language
-var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [String]\n        prevEvolution: [String]\n    }\n\n    type Query {\n        names: [String]\n        getPokemon(name: String): Pokemon\n        getPokemonByType(elementalType: [String]): [Pokemon]\n        getPokemonWithElementalAdvantage(name: String): [Pokemon]\n    }\n\n    ");
+var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [String]\n        prevEvolution: [String]\n    }\n\n    type Query {\n        names: [String]\n        pokemonList: [String]\n        getPokemon(name: String): Pokemon\n        getPokemonByType(elementalType: [String]): [Pokemon]\n        getPokemonWithElementalAdvantage(name: String): [Pokemon]\n    }\n    ");
 
 var Pokemon = function () {
     function Pokemon(name) {
@@ -144,6 +144,13 @@ var rootResolvers = {
                 return data.map(function (d) {
                     return new Pokemon(d.name);
                 });
+            });
+        });
+    },
+    pokemonList: function pokemonList() {
+        return pgConn.many('SELECT name FROM pokemon').then(function (data) {
+            return data.map(function (d) {
+                return d.name;
             });
         });
     }
