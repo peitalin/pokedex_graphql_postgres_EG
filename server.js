@@ -43,7 +43,7 @@ var schema = buildSchema(
 
     type Query {
         names: [String]
-        allPokemons: [String]
+        allPokemons: [Pokemon]
         Pokemon(name: String): Pokemon
         getPokemonByType(elementalType: [String]): [Pokemon]
         getPokemonWithElementalAdvantage(name: String): [Pokemon]
@@ -114,7 +114,7 @@ var rootResolvers = {
                             })
     },
     allPokemons: () => {
-        return pgConn.many('SELECT name FROM pokemon').then(data => data.map(d => d.name))
+        return pgConn.many('SELECT name FROM pokemon').then(data => data.map(d => new Pokemon(d.name)))
     }
 };
 
