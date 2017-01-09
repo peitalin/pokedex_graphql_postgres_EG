@@ -174,7 +174,7 @@ app.post('/', (0, _expressGraphql2.default)({
 }));
 
 app.get('/', function (req, res) {
-    var query = "\n    {\n        metapod: Pokemon(name: \"Metapod\") {\n        ...pokemonStats\n        }\n        kakuna: Pokemon(name: \"Kakuna\") {\n        ...pokemonStats\n        }\n    }\n\n    fragment pokemonStats on Pokemon {\n        id\n        name\n        height\n        weight\n        img\n        elementalType\n        elementalWeaknesses\n        nextEvolution\n        prevEvolution\n    }\n    ";
+    var query = "\n    {\n        metapod: Pokemon(name: \"Metapod\") {\n        ...pokemonStats\n        }\n        kakuna: Pokemon(name: \"Kakuna\") {\n        ...pokemonStats\n        }\n    }\n\n    fragment pokemonStats on Pokemon {\n        id\n        name\n        height\n        weight\n        img\n        elementalType\n        elementalWeaknesses\n        nextEvolution { name }\n        prevEvolution { name }\n    }\n    ";
     (0, _graphql.graphql)(schema, query, rootResolvers).then(function (result) {
         var jresult = JSON.stringify(result, null, 4);
         console.log(jresult);

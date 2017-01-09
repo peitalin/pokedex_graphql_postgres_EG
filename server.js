@@ -155,8 +155,8 @@ app.get('/', (req, res) => {
         img
         elementalType
         elementalWeaknesses
-        nextEvolution
-        prevEvolution
+        nextEvolution { name }
+        prevEvolution { name }
     }
     `
     graphql(schema, query, rootResolvers)
