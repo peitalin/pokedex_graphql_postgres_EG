@@ -19,7 +19,7 @@ Then visit this url in your browser:
 Now try a Graphql query:
 ```
 {
-  getPokemon(name: "Magikarp") {
+  Pokemon(name: "Magikarp") {
     id
     name
     img
@@ -27,7 +27,10 @@ Now try a Graphql query:
     weight
     elementalType
     elementalWeaknesses
-    nextEvolution
+    nextEvolution {
+        name
+        elementalWeaknesses
+    }
   }
 }
 ```
@@ -36,24 +39,24 @@ Try another! with fragments:
 
 ```
 {
-	metapod: getPokemon(name: "Metapod") {
-	...pokemonStats
-	}
-	kakuna: getPokemon(name: "Kakuna") {
-	...pokemonStats
-	}
+    metapod: getPokemon(name: "Metapod") {
+    ...pokemonStats
+    }
+    kakuna: getPokemon(name: "Kakuna") {
+    ...pokemonStats
+    }
 }
 
 fragment pokemonStats on Pokemon {
-	id
-	name
-	height
-	weight
-	img
-	elementalType
-	elementalWeaknesses
-	nextEvolution
-	prevEvolution
+    id
+    name
+    height
+    weight
+    img
+    elementalType
+    elementalWeaknesses
+    nextEvolution
+    prevEvolution
 }
 ```
 
@@ -123,7 +126,7 @@ You will recieve a new IP address which is now your API endpoint for graphql req
 E.g. use this with ApolloGraphQL:
 ```
 const client = new ApolloClient({
-	networkInterface: createNetworkInterface({ uri: URL }),
+    networkInterface: createNetworkInterface({ uri: URL }),
 })
 
 ```
@@ -139,7 +142,7 @@ And try filtering pokemon by types:
 
 ```
 {
-	getPokemonByType(elementalType: "Fire") {
+    getPokemonByType(elementalType: "Fire") {
     ...pokemonStats
   }
 }
@@ -152,8 +155,8 @@ fragment pokemonStats on Pokemon {
     img
     elementalType
     elementalWeaknesses
-    nextEvolution
-    prevEvolution
+    nextEvolution { name }
+    prevEvolution { name }
 }
 
 ```
@@ -163,10 +166,10 @@ Charmander (fire) vs. Charizard (fire/flying)
 
 ```
 {
-	fireWeaknesses: getPokemonWithElementalAdvantage(name: "Charmander") {
+    fireWeaknesses: getPokemonWithElementalAdvantage(name: "Charmander") {
     ...pokemonStats
   }
-	fireFlyingWeaknesses: getPokemonWithElementalAdvantage(name: "Charizard") {
+    fireFlyingWeaknesses: getPokemonWithElementalAdvantage(name: "Charizard") {
     ...pokemonStats
   }
 }
