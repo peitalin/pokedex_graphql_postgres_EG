@@ -36,9 +36,9 @@ var pgConn = require('pg-promise')()({
 });
 
 // construct schema using GraphQL schema language
-var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [String]\n        prevEvolution: [String]\n    }\n\n    type Query {\n        names: [String]\n        pokemonList: [String]\n        getPokemon(name: String): Pokemon\n        getPokemonByType(elementalType: [String]): [Pokemon]\n        getPokemonWithElementalAdvantage(name: String): [Pokemon]\n    }\n    ");
+var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [Pokemon]\n        prevEvolution: [Pokemon]\n    }\n\n    type Query {\n        names: [String]\n        allPokemons: [String]\n        Pokemon(name: String): Pokemon\n        getPokemonByType(elementalType: [String]): [Pokemon]\n        getPokemonWithElementalAdvantage(name: String): [Pokemon]\n    }\n    ");
 
-var Pokemon = function () {
+var _Pokemon = function () {
     function Pokemon(name) {
         _classCallCheck(this, Pokemon);
 
@@ -84,7 +84,7 @@ var Pokemon = function () {
 
             return pgConn.many("SELECT * FROM next_evolution WHERE next_evolution.name = '" + this.name + "'").then(function (data) {
                 return data.map(function (d) {
-                    return d.next_evolution;
+                    return new Pokemon(d.next_evolution);
                 });
             }).catch(function (err) {
                 console.log("No next evolution species exists for " + _this.name + "!");
@@ -97,7 +97,7 @@ var Pokemon = function () {
 
             return pgConn.many("SELECT * FROM prev_evolution WHERE prev_evolution.name = '" + this.name + "'").then(function (data) {
                 return data.map(function (d) {
-                    return d.prev_evolution;
+                    return new Pokemon(d.prev_evolution);
                 });
             }).catch(function (err) {
                 console.log("No previous evolution species exists for " + _this2.name + "!");
@@ -115,17 +115,17 @@ var rootResolvers = {
     names: function names() {
         return ["Dolores", "Clementine", "Maeve"];
     },
-    getPokemon: function getPokemon(_ref) {
+    Pokemon: function Pokemon(_ref) {
         var name = _ref.name;
 
-        return new Pokemon(name);
+        return new _Pokemon(name);
     },
     getPokemonByType: function getPokemonByType(_ref2) {
         var elementalType = _ref2.elementalType;
 
         return pgConn.many("SELECT * FROM pokemon_type WHERE pokemon_type.type = '" + elementalType + "'").then(function (data) {
             return data.map(function (d) {
-                return new Pokemon(d.name);
+                return new _Pokemon(d.name);
             });
         });
     },
@@ -142,12 +142,12 @@ var rootResolvers = {
             }).join(',') + ')';
             return pgConn.many("SELECT * FROM pokemon_type WHERE pokemon_type.type in " + weaknessTypeStr).then(function (data) {
                 return data.map(function (d) {
-                    return new Pokemon(d.name);
+                    return new _Pokemon(d.name);
                 });
             });
         });
     },
-    pokemonList: function pokemonList() {
+    allPokemons: function allPokemons() {
         return pgConn.many('SELECT name FROM pokemon').then(function (data) {
             return data.map(function (d) {
                 return d.name;
@@ -174,7 +174,7 @@ app.post('/', (0, _expressGraphql2.default)({
 }));
 
 app.get('/', function (req, res) {
-    var query = "\n    {\n        metapod: getPokemon(name: \"Metapod\") {\n        ...pokemonStats\n        }\n        kakuna: getPokemon(name: \"Kakuna\") {\n        ...pokemonStats\n        }\n    }\n\n    fragment pokemonStats on Pokemon {\n        id\n        name\n        height\n        weight\n        img\n        elementalType\n        elementalWeaknesses\n        nextEvolution\n        prevEvolution\n    }\n    ";
+    var query = "\n    {\n        metapod: Pokemon(name: \"Metapod\") {\n        ...pokemonStats\n        }\n        kakuna: Pokemon(name: \"Kakuna\") {\n        ...pokemonStats\n        }\n    }\n\n    fragment pokemonStats on Pokemon {\n        id\n        name\n        height\n        weight\n        img\n        elementalType\n        elementalWeaknesses\n        nextEvolution\n        prevEvolution\n    }\n    ";
     (0, _graphql.graphql)(schema, query, rootResolvers).then(function (result) {
         var jresult = JSON.stringify(result, null, 4);
         console.log(jresult);
@@ -214,8 +214,7 @@ var getPokemonData = (name="Haunter") => {
     }
     return new Promise(function(resolve, reject) {
         request(options, (err, res, body) => {
-            quote = body;
-            resolve(quote)
+            resolve(body)
         })
     })
 }

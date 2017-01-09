@@ -37,14 +37,14 @@ var schema = buildSchema(
         weight: Float
         elementalType: [String]
         elementalWeaknesses: [String]
-        nextEvolution: [String]
-        prevEvolution: [String]
+        nextEvolution: [Pokemon]
+        prevEvolution: [Pokemon]
     }
 
     type Query {
         names: [String]
-        pokemonList: [String]
-        getPokemon(name: String): Pokemon
+        allPokemons: [String]
+        Pokemon(name: String): Pokemon
         getPokemonByType(elementalType: [String]): [Pokemon]
         getPokemonWithElementalAdvantage(name: String): [Pokemon]
     }
@@ -75,7 +75,7 @@ class Pokemon {
 
     nextEvolution() {
         return pgConn.many(`SELECT * FROM next_evolution WHERE next_evolution.name = '${this.name}'`)
-                .then(data => data.map(d => d.next_evolution))
+                .then(data => data.map(d => new Pokemon(d.next_evolution)))
                 .catch(err => {
                     console.log(`No next evolution species exists for ${this.name}!`);
                 })
@@ -83,7 +83,7 @@ class Pokemon {
 
     prevEvolution() {
         return pgConn.many(`SELECT * FROM prev_evolution WHERE prev_evolution.name = '${this.name}'`)
-                .then(data => data.map(d => d.prev_evolution))
+                .then(data => data.map(d => new Pokemon(d.prev_evolution)))
                 .catch(err => {
                     console.log(`No previous evolution species exists for ${this.name}!`);
                 })
@@ -96,7 +96,7 @@ var rootResolvers = {
     names: () => {
         return ["Dolores", "Clementine", "Maeve"]
     },
-    getPokemon: ({ name }) => {
+    Pokemon: ({ name }) => {
         return new Pokemon(name)
     },
     getPokemonByType: ({ elementalType }) => {
@@ -113,7 +113,7 @@ var rootResolvers = {
                                 .then(data => data.map(d => new Pokemon(d.name)))
                             })
     },
-    pokemonList: () => {
+    allPokemons: () => {
         return pgConn.many('SELECT name FROM pokemon').then(data => data.map(d => d.name))
     }
 };
@@ -139,10 +139,10 @@ app.post('/', graphqlHTTP({
 app.get('/', (req, res) => {
     var query = `
     {
-        metapod: getPokemon(name: "Metapod") {
+        metapod: Pokemon(name: "Metapod") {
         ...pokemonStats
         }
-        kakuna: getPokemon(name: "Kakuna") {
+        kakuna: Pokemon(name: "Kakuna") {
         ...pokemonStats
         }
     }
@@ -215,8 +215,7 @@ var getPokemonData = (name="Haunter") => {
     }
     return new Promise(function(resolve, reject) {
         request(options, (err, res, body) => {
-            quote = body;
-            resolve(quote)
+            resolve(body)
         })
     })
 }
