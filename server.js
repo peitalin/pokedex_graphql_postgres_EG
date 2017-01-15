@@ -35,6 +35,13 @@ var schema = buildSchema(
         img: String
         height: Int
         weight: Float
+        attack: Int
+        defense: Int
+        speed: Int
+        hp: Int
+        spAtk: Int
+        spDef: Int
+        skills: [String]
         elementalType: [String]
         elementalWeaknesses: [String]
         nextEvolution: [Pokemon]
@@ -60,6 +67,17 @@ class Pokemon {
         this.img = dbpromise.then(d => d.img)
         this.height = dbpromise.then(d => d.height)
         this.weight = dbpromise.then(d => d.weight)
+        this.attack = dbpromise.then(d => d.Attack)
+        this.defense = dbpromise.then(d => d.Defense)
+        this.hp = dbpromise.then(d => d.HP)
+        this.speed = dbpromise.then(d => d.Speed)
+        this.spAtk = dbpromise.then(d => d.Sp_Atk)
+        this.spDef = dbpromise.then(d => d.Sp_Def)
+    }
+
+    skills() {
+      return pgConn.many(`SELECT skill FROM skills WHERE name = '${this.name}'`)
+              .then(data => data.map(d => d.skill))
     }
 
     elementalType() {

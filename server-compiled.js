@@ -36,7 +36,7 @@ var pgConn = require('pg-promise')()({
 });
 
 // construct schema using GraphQL schema language
-var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [Pokemon]\n        prevEvolution: [Pokemon]\n    }\n\n    type Query {\n        names: [String]\n        allPokemons: [Pokemon]\n        Pokemon(name: String): Pokemon\n        getPokemonByType(elementalType: [String]): [Pokemon]\n        getPokemonWithElementalAdvantage(name: String): [Pokemon]\n    }\n    ");
+var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        attack: Int\n        defense: Int\n        speed: Int\n        hp: Int\n        spAtk: Int\n        spDef: Int\n        skills: [String]\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [Pokemon]\n        prevEvolution: [Pokemon]\n    }\n\n    type Query {\n        names: [String]\n        allPokemons: [Pokemon]\n        Pokemon(name: String): Pokemon\n        getPokemonByType(elementalType: [String]): [Pokemon]\n        getPokemonWithElementalAdvantage(name: String): [Pokemon]\n    }\n    ");
 
 var _Pokemon = function () {
     function Pokemon(name) {
@@ -56,9 +56,36 @@ var _Pokemon = function () {
         this.weight = dbpromise.then(function (d) {
             return d.weight;
         });
+        this.attack = dbpromise.then(function (d) {
+            return d.Attack;
+        });
+        this.defense = dbpromise.then(function (d) {
+            return d.Defense;
+        });
+        this.hp = dbpromise.then(function (d) {
+            return d.HP;
+        });
+        this.speed = dbpromise.then(function (d) {
+            return d.Speed;
+        });
+        this.spAtk = dbpromise.then(function (d) {
+            return d.Sp_Atk;
+        });
+        this.spDef = dbpromise.then(function (d) {
+            return d.Sp_Def;
+        });
     }
 
     _createClass(Pokemon, [{
+        key: "skills",
+        value: function skills() {
+            return pgConn.many("SELECT skill FROM skills WHERE name = '" + this.name + "'").then(function (data) {
+                return data.map(function (d) {
+                    return d.skill;
+                });
+            });
+        }
+    }, {
         key: "elementalType",
         value: function elementalType() {
             return pgConn.many("SELECT * FROM pokemon_type WHERE pokemon_type.name = '" + this.name + "'").then(function (data) {
