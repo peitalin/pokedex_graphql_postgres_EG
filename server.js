@@ -5,9 +5,9 @@ import express from "express";
 import graphqlHTTP from "express-graphql";
 import { graphql, buildSchema } from "graphql";
 import _ from "lodash";
+
+
 var request = require('request')
-
-
 const DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host']
 const DBPASSWORD = process.env['AWS_RDS_PASSWORD'] || process.env['aws_rds_host']
 var SERVER_IP = 'localhost'
@@ -78,17 +78,19 @@ class Pokemon {
     skills() {
       return pgConn.many(`SELECT skill FROM skills WHERE name = '${this.name}'`)
               .then(data => data.map(d => d.skill))
+              .catch(err => console.log(err))
     }
 
     elementalType() {
         return pgConn.many(`SELECT * FROM pokemon_type WHERE pokemon_type.name = '${this.name}'`)
                 .then(data => data.map(d => d.type))
-                // unwrap data object, turn into list of elemental types: ["fire", "ground"]
+                .catch(err => console.log(err))
     }
 
     elementalWeaknesses() {
         return pgConn.many(`SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '${this.name}'`)
                 .then(data => data.map(d => d.weaknesses))
+                .catch(err => console.log(err))
     }
 
     nextEvolution() {
@@ -121,18 +123,21 @@ var rootResolvers = {
         return pgConn.many(
             `SELECT * FROM pokemon_type WHERE pokemon_type.type = '${elementalType}'`
         ).then(data => data.map(d => new Pokemon(d.name)))
+        .catch(err => console.log(err))
     },
     getPokemonWithElementalAdvantage: ({ name }) => {
         return pgConn.many(`SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '${name}'`)
-                            .then(data => data.map(d => d.weaknesses))
-                            .then(weaknesses => {
-                                var weaknessTypeStr = '(' + weaknesses.map(w => `'${w}'`).join(',') + ')'
-                                return pgConn.many( `SELECT * FROM pokemon_type WHERE pokemon_type.type in ${weaknessTypeStr}` )
-                                .then(data => data.map(d => new Pokemon(d.name)))
-                            })
+                .then(data => data.map(d => d.weaknesses))
+                .then(weaknesses => {
+                    var weaknessTypeStr = '(' + weaknesses.map(w => `'${w}'`).join(',') + ')'
+                    return pgConn.many( `SELECT * FROM pokemon_type WHERE pokemon_type.type in ${weaknessTypeStr}` )
+                    .then(data => data.map(d => new Pokemon(d.name)))
+                }).catch(err => console.log(err))
     },
     allPokemons: () => {
-        return pgConn.many('SELECT name FROM pokemon').then(data => data.map(d => new Pokemon(d.name)))
+        return pgConn.many('SELECT name FROM pokemon;')
+            .then(data => data.map(d => new Pokemon(d.name.replace("'", "''"))))
+            .catch(err => console.log(err))
     }
 };
 

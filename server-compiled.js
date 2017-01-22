@@ -21,7 +21,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var request = require('request');
-
 var DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host'];
 var DBPASSWORD = process.env['AWS_RDS_PASSWORD'] || process.env['aws_rds_host'];
 var SERVER_IP = 'localhost';
@@ -83,6 +82,8 @@ var _Pokemon = function () {
                 return data.map(function (d) {
                     return d.skill;
                 });
+            }).catch(function (err) {
+                return console.log(err);
             });
         }
     }, {
@@ -92,8 +93,9 @@ var _Pokemon = function () {
                 return data.map(function (d) {
                     return d.type;
                 });
+            }).catch(function (err) {
+                return console.log(err);
             });
-            // unwrap data object, turn into list of elemental types: ["fire", "ground"]
         }
     }, {
         key: "elementalWeaknesses",
@@ -102,6 +104,8 @@ var _Pokemon = function () {
                 return data.map(function (d) {
                     return d.weaknesses;
                 });
+            }).catch(function (err) {
+                return console.log(err);
             });
         }
     }, {
@@ -154,6 +158,8 @@ var rootResolvers = {
             return data.map(function (d) {
                 return new _Pokemon(d.name);
             });
+        }).catch(function (err) {
+            return console.log(err);
         });
     },
     getPokemonWithElementalAdvantage: function getPokemonWithElementalAdvantage(_ref3) {
@@ -172,13 +178,17 @@ var rootResolvers = {
                     return new _Pokemon(d.name);
                 });
             });
+        }).catch(function (err) {
+            return console.log(err);
         });
     },
     allPokemons: function allPokemons() {
-        return pgConn.many('SELECT name FROM pokemon').then(function (data) {
+        return pgConn.many('SELECT name FROM pokemon;').then(function (data) {
             return data.map(function (d) {
-                return new _Pokemon(d.name);
+                return new _Pokemon(d.name.replace("'", "''"));
             });
+        }).catch(function (err) {
+            return console.log(err);
         });
     }
 };
