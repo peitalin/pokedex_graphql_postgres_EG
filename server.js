@@ -61,8 +61,10 @@ var schema = buildSchema(
 
 class Pokemon {
     constructor(name) {
-        var dbpromise = pgConn.one(`SELECT * FROM pokemon WHERE name = '${name}'`)
+        if
+        var dbpromise = pgConn.one(`SELECT * FROM pokemon WHERE name = '${escape(name)}'`)
         this.name = name;
+        this._name = escape(name)
         this.id = dbpromise.then(d => d.id)
         this.img = dbpromise.then(d => d.img)
         this.height = dbpromise.then(d => d.height)
@@ -76,33 +78,33 @@ class Pokemon {
     }
 
     skills() {
-      return pgConn.many(`SELECT skill FROM skills WHERE name = '${this.name}'`)
+      return pgConn.many(`SELECT skill FROM skills WHERE name = '${this._name}'`)
               .then(data => data.map(d => d.skill))
               .catch(err => console.log(err))
     }
 
     elementalType() {
-        return pgConn.many(`SELECT * FROM pokemon_type WHERE pokemon_type.name = '${this.name}'`)
+        return pgConn.many(`SELECT * FROM pokemon_type WHERE pokemon_type.name = '${this._name}'`)
                 .then(data => data.map(d => d.type))
                 .catch(err => console.log(err))
     }
 
     elementalWeaknesses() {
-        return pgConn.many(`SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '${this.name}'`)
+        return pgConn.many(`SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '${this._name}'`)
                 .then(data => data.map(d => d.weaknesses))
                 .catch(err => console.log(err))
     }
 
     nextEvolution() {
-        return pgConn.many(`SELECT * FROM next_evolution WHERE next_evolution.name = '${this.name}'`)
+        return pgConn.many(`SELECT * FROM next_evolution WHERE next_evolution.name = '${this._name}'`)
                 .then(data => data.map(d => new Pokemon(d.next_evolution)))
                 .catch(err => {
-                    console.log(`No next evolution species exists for ${this.name}!`);
+                    console.log(`No next evolution species exists for ${this._name}!`);
                 })
     }
 
     prevEvolution() {
-        return pgConn.many(`SELECT * FROM prev_evolution WHERE prev_evolution.name = '${this.name}'`)
+        return pgConn.many(`SELECT * FROM prev_evolution WHERE prev_evolution.name = '${this._name}'`)
                 .then(data => data.map(d => new Pokemon(d.prev_evolution)))
                 .catch(err => {
                     console.log(`No previous evolution species exists for ${this.name}!`);
@@ -117,29 +119,42 @@ var rootResolvers = {
         return ["Dolores", "Clementine", "Maeve"]
     },
     Pokemon: ({ name }) => {
-        return new Pokemon(name)
+        return new Pokemon(name))
     },
     getPokemonByType: ({ elementalType }) => {
         return pgConn.many(
             `SELECT * FROM pokemon_type WHERE pokemon_type.type = '${elementalType}'`
-        ).then(data => data.map(d => new Pokemon(d.name)))
+        ).then(data => data.map(d => new Pokemon(escape(d.name))))
         .catch(err => console.log(err))
     },
     getPokemonWithElementalAdvantage: ({ name }) => {
-        return pgConn.many(`SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '${name}'`)
+        return pgConn.many(`SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '${escape(name)}'`)
                 .then(data => data.map(d => d.weaknesses))
                 .then(weaknesses => {
                     var weaknessTypeStr = '(' + weaknesses.map(w => `'${w}'`).join(',') + ')'
                     return pgConn.many( `SELECT * FROM pokemon_type WHERE pokemon_type.type in ${weaknessTypeStr}` )
-                    .then(data => data.map(d => new Pokemon(d.name)))
+                    .then(data => data.map(d => new Pokemon(escape(d.name))))
                 }).catch(err => console.log(err))
     },
     allPokemons: () => {
         return pgConn.many('SELECT name FROM pokemon;')
-            .then(data => data.map(d => new Pokemon(d.name.replace("'", "''"))))
+            .then(data => data.map(d => new Pokemon(escape(d.name))))
             .catch(err => console.log(err))
     }
 };
+
+
+
+const escape(s) {
+  if (s.match(/'/g).length === 1) {
+    return s.replace("'", "''")
+  } else {
+    return s
+  }
+}
+
+
+
 
 
 var app = express();
