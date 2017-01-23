@@ -37,13 +37,24 @@ var pgConn = require('pg-promise')()({
 // construct schema using GraphQL schema language
 var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        attack: Int\n        defense: Int\n        speed: Int\n        hp: Int\n        spAtk: Int\n        spDef: Int\n        skills: [String]\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [Pokemon]\n        prevEvolution: [Pokemon]\n    }\n\n    type Query {\n        names: [String]\n        allPokemons: [Pokemon]\n        Pokemon(name: String): Pokemon\n        getPokemonByType(elementalType: [String]): [Pokemon]\n        getPokemonWithElementalAdvantage(name: String): [Pokemon]\n    }\n    ");
 
+var esc = function esc(s) {
+    if (!s.includes("'")) {
+        return s;
+    }
+    if (s.match(/'/g).length === 1) {
+        return s.replace("'", "''");
+    } else {
+        return s;
+    }
+};
+
 var _Pokemon = function () {
     function Pokemon(name) {
         _classCallCheck(this, Pokemon);
 
-        var dbpromise = pgConn.one("SELECT * FROM pokemon WHERE name = '" + escape(name) + "'");
+        this.pgname = esc(name);
+        var dbpromise = pgConn.one("SELECT * FROM pokemon WHERE name = '" + this.pgname + "'");
         this.name = name;
-        this._name = escape(name);
         this.id = dbpromise.then(function (d) {
             return d.id;
         });
@@ -79,7 +90,7 @@ var _Pokemon = function () {
     _createClass(Pokemon, [{
         key: "skills",
         value: function skills() {
-            return pgConn.many("SELECT skill FROM skills WHERE name = '" + this._name + "'").then(function (data) {
+            return pgConn.many("SELECT skill FROM skills WHERE name = '" + this.pgname + "'").then(function (data) {
                 return data.map(function (d) {
                     return d.skill;
                 });
@@ -90,7 +101,7 @@ var _Pokemon = function () {
     }, {
         key: "elementalType",
         value: function elementalType() {
-            return pgConn.many("SELECT * FROM pokemon_type WHERE pokemon_type.name = '" + this._name + "'").then(function (data) {
+            return pgConn.many("SELECT * FROM pokemon_type WHERE pokemon_type.name = '" + this.pgname + "'").then(function (data) {
                 return data.map(function (d) {
                     return d.type;
                 });
@@ -101,7 +112,7 @@ var _Pokemon = function () {
     }, {
         key: "elementalWeaknesses",
         value: function elementalWeaknesses() {
-            return pgConn.many("SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '" + this._name + "'").then(function (data) {
+            return pgConn.many("SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '" + this.pgname + "'").then(function (data) {
                 return data.map(function (d) {
                     return d.weaknesses;
                 });
@@ -114,12 +125,12 @@ var _Pokemon = function () {
         value: function nextEvolution() {
             var _this = this;
 
-            return pgConn.many("SELECT * FROM next_evolution WHERE next_evolution.name = '" + this._name + "'").then(function (data) {
+            return pgConn.many("SELECT * FROM next_evolution WHERE next_evolution.name = '" + this.pgname + "'").then(function (data) {
                 return data.map(function (d) {
                     return new Pokemon(d.next_evolution);
                 });
             }).catch(function (err) {
-                console.log("No next evolution species exists for " + _this._name + "!");
+                console.log("No next evolution species exists for " + _this.name + "!");
             });
         }
     }, {
@@ -127,7 +138,7 @@ var _Pokemon = function () {
         value: function prevEvolution() {
             var _this2 = this;
 
-            return pgConn.many("SELECT * FROM prev_evolution WHERE prev_evolution.name = '" + this._name + "'").then(function (data) {
+            return pgConn.many("SELECT * FROM prev_evolution WHERE prev_evolution.name = '" + this.pgname + "'").then(function (data) {
                 return data.map(function (d) {
                     return new Pokemon(d.prev_evolution);
                 });
@@ -157,7 +168,7 @@ var rootResolvers = {
 
         return pgConn.many("SELECT * FROM pokemon_type WHERE pokemon_type.type = '" + elementalType + "'").then(function (data) {
             return data.map(function (d) {
-                return new _Pokemon(escape(d.name));
+                return new _Pokemon(d.name);
             });
         }).catch(function (err) {
             return console.log(err);
@@ -166,7 +177,7 @@ var rootResolvers = {
     getPokemonWithElementalAdvantage: function getPokemonWithElementalAdvantage(_ref3) {
         var name = _ref3.name;
 
-        return pgConn.many("SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '" + escape(name) + "'").then(function (data) {
+        return pgConn.many("SELECT * FROM pokemon_weaknesses WHERE pokemon_weaknesses.name = '" + esc(name) + "'").then(function (data) {
             return data.map(function (d) {
                 return d.weaknesses;
             });
@@ -176,7 +187,7 @@ var rootResolvers = {
             }).join(',') + ')';
             return pgConn.many("SELECT * FROM pokemon_type WHERE pokemon_type.type in " + weaknessTypeStr).then(function (data) {
                 return data.map(function (d) {
-                    return new _Pokemon(escape(d.name));
+                    return new _Pokemon(d.name);
                 });
             });
         }).catch(function (err) {
@@ -184,21 +195,13 @@ var rootResolvers = {
         });
     },
     allPokemons: function allPokemons() {
-        return pgConn.many('SELECT name FROM pokemon;').then(function (data) {
+        return pgConn.many('SELECT name FROM pokemon').then(function (data) {
             return data.map(function (d) {
                 return new _Pokemon(d.name);
             });
         }).catch(function (err) {
             return console.log(err);
         });
-    }
-};
-
-var escape = function escape(s) {
-    if (s.match(/'/g).length === 1) {
-        return s.replace("'", "''");
-    } else {
-        return s;
     }
 };
 
