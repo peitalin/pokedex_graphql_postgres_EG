@@ -61,7 +61,6 @@ var schema = buildSchema(
 
 class Pokemon {
     constructor(name) {
-        if
         var dbpromise = pgConn.one(`SELECT * FROM pokemon WHERE name = '${escape(name)}'`)
         this.name = name;
         this._name = escape(name)
@@ -119,7 +118,7 @@ var rootResolvers = {
         return ["Dolores", "Clementine", "Maeve"]
     },
     Pokemon: ({ name }) => {
-        return new Pokemon(name))
+        return new Pokemon(name)
     },
     getPokemonByType: ({ elementalType }) => {
         return pgConn.many(
@@ -145,7 +144,7 @@ var rootResolvers = {
 
 
 
-const escape(s) {
+const escape = (s) => {
   if (s.match(/'/g).length === 1) {
     return s.replace("'", "''")
   } else {
