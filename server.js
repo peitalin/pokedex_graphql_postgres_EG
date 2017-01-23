@@ -137,7 +137,7 @@ var rootResolvers = {
     },
     allPokemons: () => {
         return pgConn.many('SELECT name FROM pokemon;')
-            .then(data => data.map(d => new Pokemon(escape(d.name))))
+            .then(data => data.map(d => new Pokemon(d.name)))
             .catch(err => console.log(err))
     }
 };

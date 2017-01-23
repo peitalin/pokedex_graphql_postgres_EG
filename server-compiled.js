@@ -186,7 +186,7 @@ var rootResolvers = {
     allPokemons: function allPokemons() {
         return pgConn.many('SELECT name FROM pokemon;').then(function (data) {
             return data.map(function (d) {
-                return new _Pokemon(escape(d.name));
+                return new _Pokemon(d.name);
             });
         }).catch(function (err) {
             return console.log(err);
