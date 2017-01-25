@@ -59,6 +59,7 @@ var schema = buildSchema(
 );
 
 const esc = (s) => {
+  console.log("Pokemon name is: ", s)
   if (!s.includes("'")) {
     return s
   }

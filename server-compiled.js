@@ -38,6 +38,7 @@ var pgConn = require('pg-promise')()({
 var schema = (0, _graphql.buildSchema)("\n    type schema {\n        query: Query\n    }\n\n    type Pokemon {\n        id: String\n        name: String\n        img: String\n        height: Int\n        weight: Float\n        attack: Int\n        defense: Int\n        speed: Int\n        hp: Int\n        spAtk: Int\n        spDef: Int\n        skills: [String]\n        elementalType: [String]\n        elementalWeaknesses: [String]\n        nextEvolution: [Pokemon]\n        prevEvolution: [Pokemon]\n    }\n\n    type Query {\n        names: [String]\n        allPokemons: [Pokemon]\n        Pokemon(name: String): Pokemon\n        getPokemonByType(elementalType: [String]): [Pokemon]\n        getPokemonWithElementalAdvantage(name: String): [Pokemon]\n    }\n    ");
 
 var esc = function esc(s) {
+    console.log("Pokemon name is: ", s);
     if (!s.includes("'")) {
         return s;
     }
