@@ -231,22 +231,39 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 
 app.post('/slackbot', function (req, res, next) {
     console.log(req.body);
-    var text = req.body.investor;
-    var investor = req.body.investor;
-    var start = req.body.start;
-    var end = req.body.end;
+    var text = req.body.text.split(' ');
+    //req.body: {
+    //   token: 'dN9s2fjYnnoq4jLyq4noH3LC',
+    //   team_id: 'T1H1H1EBG',
+    //   team_domain: 'fincapstone',
+    //   channel_id: 'D1KEWSKMF',
+    //   channel_name: 'directmessage',
+    //   user_id: 'U1H21P07L',
+    //   user_name: 'peita',
+    //   command: '/alpha',
+    //   text: 'buffett 2012-01 2015-11',
+    //   response_url: 'https://hooks.slack.com/commands/T1H1H1EBG/135929767095/klEbWti43IGke41GsgvsXwBT' }
+
+    var investor = text[0];
+    if (text.length === 3) {
+        var start = text[1];
+        var end = text[2];
+    } else {
+        var start = undefined;
+        var end = undefined;
+    }
+
     if (start && end) {
         exec("python3 ./raydalio_slackbot/alpha.py " + investor + " " + start + " " + end, function (err, stdout, stderr) {
             console.log(stdout);
             console.log(text);
-            res.json(req.body);
+            res.send(stdout);
         });
     } else {
         exec("python3 ./raydalio_slackbot/alpha.py " + investor, function (err, stdout, stderr) {
             console.log(stdout);
             console.log(text);
-            // res.send(text)
-            res.json(req.body);
+            res.send(stdout);
         });
     }
     // res.json(req.body)
