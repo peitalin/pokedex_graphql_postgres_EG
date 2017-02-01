@@ -257,13 +257,17 @@ app.post('/slackbot', function (req, res, next) {
         exec("python3 ./raydalio_slackbot/alpha.py " + investor + " " + start + " " + end, function (err, stdout, stderr) {
             console.log(stdout);
             console.log(text);
-            res.send(stdout);
+            res.json({
+                "text": "```" + stdout + "```"
+            });
         });
     } else {
         exec("python3 ./raydalio_slackbot/alpha.py " + investor, function (err, stdout, stderr) {
             console.log(stdout);
             console.log(text);
-            res.send(stdout);
+            res.json({
+                "text": "```" + stdout + "```"
+            });
         });
     }
     // res.json(req.body)
