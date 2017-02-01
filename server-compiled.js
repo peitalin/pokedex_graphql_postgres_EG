@@ -20,6 +20,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var exec = require('child_process').exec;
 var bodyParser = require('body-parser');
 
 var request = require('request');
@@ -230,7 +231,21 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 
 app.post('/slackbot', function (req, res, next) {
     console.log(req.body);
-    res.json(req.body);
+    var investor = req.body.investor;
+    var start = req.body.start;
+    var end = req.body.end;
+    if (start && end) {
+        exec("python3 ./raydalio_slackbot/alpha.py " + investor + " " + start + " " + end, function (err, stdout, stderr) {
+            console.log(stdout);
+            res.send(stdout);
+        });
+    } else {
+        exec("python3 ./raydalio_slackbot/alpha.py " + investor, function (err, stdout, stderr) {
+            console.log(stdout);
+            res.send(stdout);
+        });
+    }
+    // res.json(req.body)
     // res.send("POST to /slackbot")
 });
 

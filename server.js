@@ -5,6 +5,7 @@ import express from "express";
 import graphqlHTTP from "express-graphql";
 import { graphql, buildSchema } from "graphql";
 import _ from "lodash";
+var exec = require('child_process').exec
 var bodyParser = require('body-parser');
 
 var request = require('request')
@@ -183,7 +184,21 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 
 app.post('/slackbot', (req, res, next) => {
   console.log(req.body)
-  res.json(req.body)
+  var investor = req.body.investor
+  var start = req.body.start
+  var end = req.body.end
+  if (start && end) {
+    exec(`python3 ./raydalio_slackbot/alpha.py ${investor} ${start} ${end}`, (err, stdout, stderr) => {
+      console.log(stdout)
+      res.send(stdout)
+    })
+  } else {
+    exec(`python3 ./raydalio_slackbot/alpha.py ${investor}`, (err, stdout, stderr) => {
+      console.log(stdout)
+      res.send(stdout)
+    })
+  }
+  // res.json(req.body)
   // res.send("POST to /slackbot")
 })
 
