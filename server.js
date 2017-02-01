@@ -228,7 +228,24 @@ app.post('/slackbot', (req, res, next) => {
   // res.send("POST to /slackbot")
 })
 
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
 
+app.post('/rayconcurs', (req, res, next) => {
+  var raysays = [
+    "I concur. Brilliant insight.",
+    "I agree 100%.",
+    "Yes, that sounds convincing.",
+    "I concur, Fascinating perspective.",
+    "I agree whole-heartedly.",
+    "Yes, I agree completely.",
+    "I absolutely agree."
+  ]
+  res.send(raysays[getRandomInt(0, 6)])
+})
 
 
 

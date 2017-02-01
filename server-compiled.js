@@ -274,6 +274,17 @@ app.post('/slackbot', function (req, res, next) {
     // res.send("POST to /slackbot")
 });
 
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+app.post('/rayconcurs', function (req, res, next) {
+    var raysays = ["I concur. Brilliant insight.", "I agree 100%.", "Yes, that sounds convincing.", "I concur, Fascinating perspective.", "I agree whole-heartedly.", "Yes, I agree completely.", "I absolutely agree."];
+    res.send(raysays[getRandomInt(0, 6)]);
+});
+
 app.get('/', function (req, res) {
     var query = "\n    {\n        metapod: Pokemon(name: \"Metapod\") {\n        ...pokemonStats\n        }\n        kakuna: Pokemon(name: \"Kakuna\") {\n        ...pokemonStats\n        }\n    }\n\n    fragment pokemonStats on Pokemon {\n        id\n        name\n        height\n        weight\n        img\n        elementalType\n        elementalWeaknesses\n        nextEvolution { name }\n        prevEvolution { name }\n    }\n    ";
     (0, _graphql.graphql)(schema, query, rootResolvers).then(function (result) {
