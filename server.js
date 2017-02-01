@@ -266,6 +266,7 @@ app.post('/slackbot', (req, res, next) => {
       console.log(stdout)
       console.log(text)
       res.json({
+        "response_type": "in_channel",
         "text": "```" + stdout + "```"
       })
     })
