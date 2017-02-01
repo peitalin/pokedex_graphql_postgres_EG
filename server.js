@@ -351,8 +351,8 @@ app.post('/raysays', (req, res, next) => {
 "I'm scared of one man, one vote because it suggests that everybody has an equal ability at making decisions, and I think that's dangerous.",
 "The more you think you know, the more closed-minded you'll be.",
 "I think the basic problem is that everybody thinks they know what the truth is, and sometimes they're even distorting the truth to make their arguments.",
-"Sometimes we forge our own principles and sometimes we accept others' principles, or holistic packages of principles, such as religion and legal systems. While it isn't necessarily a bad thing to use others' principles - it's difficult to come up with your own, and often much wisdom has gone into those already created - adopting pre-packaged principles without much thought exposes you to the risk of inconsistency with your true values."
-"Principles are what allow you to live a life consistent with those values. Principles connect your values to your actions.",
+"Sometimes we forge our own principles and sometimes we accept others' principles, or holistic packages of principles, such as religion and legal systems. While it isn't necessarily a bad thing to use others' principles - it's difficult to come up with your own, and often much wisdom has gone into those already created - adopting pre-packaged principles without much thought exposes you to the risk of inconsistency with your true values.",
+"Principles are what allow you to live a life consistent with those values. Principles connect your values to your actions."
   ]
   res.send(raysays[getRandomInt(0, 11)])
 })
