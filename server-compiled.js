@@ -20,6 +20,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var bodyParser = require('body-parser');
+
 var request = require('request');
 var DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host'];
 var DBPASSWORD = process.env['AWS_RDS_PASSWORD'] || process.env['aws_rds_host'];
@@ -222,6 +224,15 @@ app.post('/', (0, _expressGraphql2.default)({
     pretty: true,
     rootValue: rootResolvers
 }));
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+app.post('/slackbot', function (req, res, next) {
+    console.log(req.body);
+    res.json(req.body);
+    // res.send("POST to /slackbot")
+});
 
 app.get('/', function (req, res) {
     var query = "\n    {\n        metapod: Pokemon(name: \"Metapod\") {\n        ...pokemonStats\n        }\n        kakuna: Pokemon(name: \"Kakuna\") {\n        ...pokemonStats\n        }\n    }\n\n    fragment pokemonStats on Pokemon {\n        id\n        name\n        height\n        weight\n        img\n        elementalType\n        elementalWeaknesses\n        nextEvolution { name }\n        prevEvolution { name }\n    }\n    ";

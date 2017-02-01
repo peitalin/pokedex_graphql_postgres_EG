@@ -5,7 +5,7 @@ import express from "express";
 import graphqlHTTP from "express-graphql";
 import { graphql, buildSchema } from "graphql";
 import _ from "lodash";
-
+var bodyParser = require('body-parser');
 
 var request = require('request')
 const DBHOST = process.env['AWS_RDS_HOST'] || process.env['aws_rds_host']
@@ -177,6 +177,19 @@ app.post('/', graphqlHTTP({
     pretty: true,
     rootValue: rootResolvers
 }))
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+app.post('/slackbot', (req, res, next) => {
+  console.log(req.body)
+  res.json(req.body)
+  // res.send("POST to /slackbot")
+})
+
+
+
+
 
 app.get('/', (req, res) => {
     var query = `
