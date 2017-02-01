@@ -271,7 +271,6 @@ app.post('/slackbot', function (req, res, next) {
 
     if (start && end) {
         exec("python3 ./raydalio_slackbot/alpha.py " + investor + " " + start + " " + end, function (err, stdout, stderr) {
-            console.log(stdout);
             console.log(text);
             res.json({
                 "response_type": "in_channel",
@@ -280,7 +279,6 @@ app.post('/slackbot', function (req, res, next) {
         });
     } else {
         exec("python3 ./raydalio_slackbot/alpha.py " + investor, function (err, stdout, stderr) {
-            console.log(stdout);
             console.log(text);
             res.json({
                 "response_type": "in_channel",
@@ -288,8 +286,6 @@ app.post('/slackbot', function (req, res, next) {
             });
         });
     }
-    // res.json(req.body)
-    // res.send("POST to /slackbot")
 });
 
 function getRandomInt(min, max) {
@@ -300,22 +296,34 @@ function getRandomInt(min, max) {
 
 app.post('/rayconcurs', function (req, res, next) {
     var rayconcurs = ["I concur. Brilliant insight.", "I agree 100%.", "Yes, that sounds convincing.", "I concur, Fascinating perspective.", "I agree whole-heartedly.", "Yes, I agree completely.", "Touche, I concur."];
-    res.send(rayconcurs[getRandomInt(0, 6)]);
+    res.json({
+        "response_type": "in_channel",
+        "text": rayconcurs[getRandomInt(0, 6)]
+    });
 });
 
 app.post('/buffettsays', function (req, res, next) {
     var buffettsays = ["It takes 20 years to build a reputation and five minutes to ruin it. If you think about that, you'll do things differently.", "It's far better to buy a wonderful company at a fair price than a fair company at a wonderful price.", "We simply attempt to be fearful when others are greedy and to be greedy only when others are fearful.", "Someone's sitting in the shade today because someone planted a tree a long time ago.", "Risk comes from not knowing what you're doing.", "Rule No.1: Never lose money. Rule No.2: Never forget rule No.1.", "It's better to hang out with people better than you. Pick out associates whose behavior is better than yours and you'll drift in that direction.", "It's only when the tide goes out that you discover who's been swimming naked.", "You only have to do a very few things right in your life so long as you don't do too many things wrong.", "Successful Investing takes time, discipline and patience. No matter how great the talent or effort, some things just take time: You can't produce a baby in one month by getting nine women pregnant.", "When a management with reputation for brilliance gets hooked up with a business with a reputation for bad economics, it's the reputation of the business that remains intact.", "The Stock Market is designed to transfer money from the Active to the Patient.", "Price is what you pay. Value is what you get."];
-    res.send(buffettsays[getRandomInt(0, 12)]);
+    res.json({
+        "response_type": "in_channel",
+        "text": buffettsays[getRandomInt(0, 12)]
+    });
 });
 
 app.post('/icahnsays', function (req, res, next) {
     var icahnsays = ["Some people get rich studying artificial intelligence. Me, I make money studying natural stupidity.", "When friends and acquaintances are telling you that you are a genius, before you accept their opinion, take a moment to remember what you always thought of their opinions in the past.", "In life and business, there are two cardinal sins. The first is to act precipitously without thought and the second is to not act at all.", "Don't confuse luck with skill when judging others, and especially when judging yourself.", "When most investors, including the pros, all agree on something, they're usually wrong.", "You learn in this business.. If you want a friend, get a dog.", "CEOs are paid for doing a terrible job. If the system wasn't so messed up, guys like me wouldn't make this kind of money.", "Everything I have is for sale, except for my kids and possibly my wife.", "Now the guy that got to the top, the CEO, would obviously be stupid to have a number two guy who was a lot smarter than he is. So by definition, since he's a survivor and he got to the top and he isn't that brilliant, his number two guy is going to always be a little worse than he is. So, as time goes on, it's anti-Darwinism, the survival of the un-fittest.", "We want these assets to be productive. We buy them. We own them. To say we care only about the short term is wrong. What I care about is seeing these assets in the best hands."];
-    res.send(icahnsays[getRandomInt(0, 9)]);
+    res.json({
+        "response_type": "in_channel",
+        "text": icahnsays[getRandomInt(0, 9)]
+    });
 });
 
 app.post('/raysays', function (req, res, next) {
     var raysays = ["More than anything else, what differentiates people who live up to their potential from those who don't is a willingness to look at themselves and others objectively", "Be wary of the arrogant intellectual who comments from the stands without having played on the field.", "There is nothing to fear from truth....Being truthful is essential to being an independent thinker and obtaining greater understanding of what is right.", "Success is achieved by people who deeply understand reality and know how to use it to get what they want. The converse is also true: idealists who are not well-grounded in reality create problems, not progress.", "I believe that the biggest problem that humanity faces is an ego sensitivity to finding out whether one is right or wrong and identifying what one's strengths and weaknesses are.", "Ask yourself whether you have earned the right to have an opinion. Opinions are easy to produce, so bad ones abound. Knowing that you don't know something is nearly as valuable as knowing it. The worst situation is thinking you know something when you don't.", "Don't worry about looking good - worry about achieving your goals.", "I'm scared of one man, one vote because it suggests that everybody has an equal ability at making decisions, and I think that's dangerous.", "The more you think you know, the more closed-minded you'll be.", "I think the basic problem is that everybody thinks they know what the truth is, and sometimes they're even distorting the truth to make their arguments.", "Sometimes we forge our own principles and sometimes we accept others' principles, or holistic packages of principles, such as religion and legal systems. While it isn't necessarily a bad thing to use others' principles - it's difficult to come up with your own, and often much wisdom has gone into those already created - adopting pre-packaged principles without much thought exposes you to the risk of inconsistency with your true values.", "Principles are what allow you to live a life consistent with those values. Principles connect your values to your actions."];
-    res.send(raysays[getRandomInt(0, 11)]);
+    res.json({
+        "response_type": "in_channel",
+        "text": raysays[getRandomInt(0, 11)]
+    });
 });
 
 // For development environment only

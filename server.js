@@ -263,7 +263,6 @@ app.post('/slackbot', (req, res, next) => {
 
   if (start && end) {
     exec(`python3 ./raydalio_slackbot/alpha.py ${investor} ${start} ${end}`, (err, stdout, stderr) => {
-      console.log(stdout)
       console.log(text)
       res.json({
         "response_type": "in_channel",
@@ -272,7 +271,6 @@ app.post('/slackbot', (req, res, next) => {
     })
   } else {
     exec(`python3 ./raydalio_slackbot/alpha.py ${investor}`, (err, stdout, stderr) => {
-      console.log(stdout)
       console.log(text)
       res.json({
         "response_type": "in_channel",
@@ -280,8 +278,6 @@ app.post('/slackbot', (req, res, next) => {
       })
     })
   }
-  // res.json(req.body)
-  // res.send("POST to /slackbot")
 })
 
 function getRandomInt(min, max) {
@@ -300,7 +296,10 @@ app.post('/rayconcurs', (req, res, next) => {
     "Yes, I agree completely.",
     "Touche, I concur."
   ]
-  res.send(rayconcurs[getRandomInt(0, 6)])
+  res.json({
+    "response_type": "in_channel",
+    "text": rayconcurs[getRandomInt(0, 6)]
+  })
 })
 
 
@@ -320,7 +319,10 @@ app.post('/buffettsays', (req, res, next) => {
     "The Stock Market is designed to transfer money from the Active to the Patient.",
     "Price is what you pay. Value is what you get."
   ]
-  res.send(buffettsays[getRandomInt(0, 12)])
+  res.json({
+    "response_type": "in_channel",
+    "text": buffettsays[getRandomInt(0, 12)]
+  })
 })
 
 
@@ -337,7 +339,10 @@ app.post('/icahnsays', (req, res, next) => {
     "Now the guy that got to the top, the CEO, would obviously be stupid to have a number two guy who was a lot smarter than he is. So by definition, since he's a survivor and he got to the top and he isn't that brilliant, his number two guy is going to always be a little worse than he is. So, as time goes on, it's anti-Darwinism, the survival of the un-fittest.",
     "We want these assets to be productive. We buy them. We own them. To say we care only about the short term is wrong. What I care about is seeing these assets in the best hands."
   ]
-  res.send(icahnsays[getRandomInt(0, 9)])
+  res.json({
+    "response_type": "in_channel",
+    "text": icahnsays[getRandomInt(0, 9)]
+  })
 })
 
 
@@ -356,7 +361,10 @@ app.post('/raysays', (req, res, next) => {
 "Sometimes we forge our own principles and sometimes we accept others' principles, or holistic packages of principles, such as religion and legal systems. While it isn't necessarily a bad thing to use others' principles - it's difficult to come up with your own, and often much wisdom has gone into those already created - adopting pre-packaged principles without much thought exposes you to the risk of inconsistency with your true values.",
 "Principles are what allow you to live a life consistent with those values. Principles connect your values to your actions."
   ]
-  res.send(raysays[getRandomInt(0, 11)])
+  res.json({
+    "response_type": "in_channel",
+    "text": raysays[getRandomInt(0, 11)]
+  })
 })
 
 
