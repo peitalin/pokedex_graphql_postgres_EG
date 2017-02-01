@@ -192,7 +192,7 @@ app.post('/slackbot', (req, res, next) => {
     exec(`python3 ./raydalio_slackbot/alpha.py ${investor} ${start} ${end}`, (err, stdout, stderr) => {
       console.log(stdout)
       console.log(text)
-      res.send(text)
+      res.json(req.body)
     })
   } else {
     exec(`python3 ./raydalio_slackbot/alpha.py ${investor}`, (err, stdout, stderr) => {
