@@ -184,18 +184,22 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 
 app.post('/slackbot', (req, res, next) => {
   console.log(req.body)
+  var text = req.body.investor
   var investor = req.body.investor
   var start = req.body.start
   var end = req.body.end
   if (start && end) {
     exec(`python3 ./raydalio_slackbot/alpha.py ${investor} ${start} ${end}`, (err, stdout, stderr) => {
       console.log(stdout)
-      res.send(stdout)
+      console.log(text)
+      res.send(text)
     })
   } else {
     exec(`python3 ./raydalio_slackbot/alpha.py ${investor}`, (err, stdout, stderr) => {
       console.log(stdout)
-      res.send(stdout)
+      console.log(text)
+      // res.send(text)
+      res.json(req.body)
     })
   }
   // res.json(req.body)
